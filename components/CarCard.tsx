@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { CarProps } from '@/types';
 import CustomButton from './CustomButton';
-import { calculateCarRent } from '@/utils';
+import { calculateCarRent, generateCarImageUrl } from '@/utils';
 import CarDetails from './CarDetails';
 
 interface CarCardProps {
@@ -17,14 +17,29 @@ const fallbackMPG: Record<string, number> = {
   "honda_civic": 28,
 };
 
+// Function to generate random number between min and max (inclusive)
+const getRandomNumber = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 function CarCard({ car }: CarCardProps) {
   const { city_mpg, year, make, model, transmission, drive } = car;
 
   const key = `${make.toLowerCase()}_${model.toLowerCase()}`;
+  
+  const [mpgValue, setMpgValue] = useState<number>(0);
+  
+  useEffect(() => {
+    if (typeof city_mpg === "string" && city_mpg === "this field is for premium subscribers only") {
+      setMpgValue(getRandomNumber(19, 50));
+    } else if (typeof city_mpg === "number") {
+      setMpgValue(city_mpg);
+    } else {
+      setMpgValue(fallbackMPG[key] || 20);
+    }
+  }, [city_mpg, key]);
 
-  const resolvedMPG = typeof city_mpg === "number" ? city_mpg : fallbackMPG[key] || 20;
-
-  const carRent = calculateCarRent(resolvedMPG, Number(year));
+  const carRent = calculateCarRent(mpgValue, Number(year));
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -42,7 +57,7 @@ function CarCard({ car }: CarCardProps) {
 
       <div className="relative w-full h-40 my-3 object-contain">
         <Image
-          src="/hero.png"
+          src={generateCarImageUrl(car)}
           alt="car model"
           fill
           priority
@@ -67,7 +82,7 @@ function CarCard({ car }: CarCardProps) {
           <div className="flex flex-col justify-center items-center gap-2">
             <Image src="/gas.svg" width={20} height={20} alt="gas" />
             <p className="text-[14px] leading-[17px] font-bold">
-              {resolvedMPG} MPG
+              {mpgValue} MPG
             </p>
           </div>
         </div>
