@@ -9,7 +9,7 @@ const Footer = () => (
       <div className='flex flex-col justify-start items-start gap-6'>
         <Image src='/logo.svg' alt='logo' width={118} height={18} className='object-contain' />
         <p className='text-base text-gray-700'>
-          Carhub 2023 <br />
+          Carhub 2025 <br />
           All Rights Reserved &copy;
         </p>
       </div>
